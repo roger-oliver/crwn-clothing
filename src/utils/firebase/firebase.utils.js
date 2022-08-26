@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -10,8 +11,6 @@ const { REACT_APP_FIREBASE_API_KEY,
         REACT_APP_FIREBASE_STORAGE_BUCKET,
         REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
         REACT_APP_FIREBASE_APP_ID } = process.env;
-
-console.log('hey@@@');
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -24,8 +23,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
@@ -34,3 +32,14 @@ provider.setCustomParameters({
 
 export const auth = getAuth();
 export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
+export const db = getFirestore(app);
+
+export const createUserDocumentFromAuth = async (userAuth) => {
+  const userDocRef = doc(db, 'users', userAuth.uid);
+  console.log(userDocRef);
+
+  const userSnapshot = await getDoc(userDocRef);
+
+  console.log(userSnapshot);
+  console.log(userSnapshot.exists());
+}
