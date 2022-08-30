@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createUserDocumentFromAuth, signInAuthUserWithEmailAndPassword, signInWithGooglePopup } from '../../utils/firebase/firebase.utils';
+import { createUserDocumentFromAuth, returnErrorMessageFromCode, signInAuthUserWithEmailAndPassword, signInWithGooglePopup } from '../../utils/firebase/firebase.utils';
 import Button from '../button/button.component';
 import FormInput from '../form-input/form-input.component';
 import './sign-in-form.styles.scss';
@@ -27,7 +27,8 @@ const SignInForm = (props) => {
       
       resetFormFields();
     } catch (error) {
-      console.log(error);
+      let message = returnErrorMessageFromCode(error.code.toLocaleLowerCase());
+      alert(message || error);
     }
   };
 
@@ -68,7 +69,7 @@ const SignInForm = (props) => {
 
         <div className='buttons-container'>
           <Button type='submit' buttonText='Sign In' />
-          <Button onClick={signInWithGoogle} buttonText='Google Sign In' buttonStyleType='google' />
+          <Button type='button' onClick={signInWithGoogle} buttonText='Google Sign In' buttonStyleType='google' />
         </div>
       </form>
     </div>

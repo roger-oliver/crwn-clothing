@@ -24,6 +24,11 @@ const firebaseConfig = {
   appId: REACT_APP_FIREBASE_APP_ID,
 };
 
+const ERROR_MESSAGES = {
+  'auth/wrong-password': 'Incorrect password for email.',
+  'auth/user-not-found': 'No user found with this email.',
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -76,3 +81,7 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
   return await signInWithEmailAndPassword(auth, email, password);
 };
+
+export const returnErrorMessageFromCode = (errorCode) => {
+  return ERROR_MESSAGES[errorCode];
+}
