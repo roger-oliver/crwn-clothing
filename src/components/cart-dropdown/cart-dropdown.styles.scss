@@ -23,10 +23,16 @@
     height: 240px;
     display: flex;
     flex-direction: column;
-    overflow: scroll;
+    overflow: hidden;
+    overflow-y: scroll;
+  }
+
+  .cart-items::-webkit-scrollbar {
+    display: none;
   }
 
   button {
     margin-top: auto;
+    width: 100%;
   }
 }
