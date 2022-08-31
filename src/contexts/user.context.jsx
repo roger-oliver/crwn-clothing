@@ -13,14 +13,15 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
 
     async function subscribe() {
-      const unsubscribe = onAuthStateChangedListener((user) => {
+      const unsubscribe = onAuthStateChangedListener(async (user) => {
         if (user) {
-          createUserDocumentFromAuth(user);
+          await createUserDocumentFromAuth(user);
         }
         setCurrentUser(user);
       });
       return unsubscribe;
     };
+    // TODO: should return unsubscribed (when completed), but returning an error
     subscribe();
 
   }, []);

@@ -89,6 +89,4 @@ export const returnErrorMessageFromCode = (errorCode) => {
   return ERROR_MESSAGES[errorCode];
 };
 
-export const onAuthStateChangedListener = (callback) => {
-  onAuthStateChanged(auth, callback);
-};
+export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth, callback);
