@@ -16,15 +16,13 @@ export const USER_ACTION_TYPES = {
 
 // create the userReducer
 const userReducer = (state, action) => {
-  console.log('----> userReducer - DISPATCHED');
-  console.log('---->', action);
   const { type, payload } = action;
 
   switch (type) {
     case USER_ACTION_TYPES.SET_CURRENT_USER:
       return {
         ...state,
-        currentUser: payload,
+        ...payload,
       };
     default:
       throw new Error({
@@ -41,10 +39,9 @@ const INITIAL_STATE = {
 export const UserProvider = ({ children }) => {
   const [state, dispatch] = useReducer(userReducer, INITIAL_STATE);
   const { currentUser } = state;
-  console.log('---->', currentUser);
 
   const setCurrentUser = (user) => {
-    dispatch({ type: USER_ACTION_TYPES.SET_CURRENT_USER, payload: user });
+    dispatch({ type: USER_ACTION_TYPES.SET_CURRENT_USER, payload: { currentUser: user} });
   };
 
   const value = { currentUser, setCurrentUser };
