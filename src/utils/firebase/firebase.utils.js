@@ -46,7 +46,8 @@ googleProvider.setCustomParameters({
   prompt: 'select_account',
 });
 
-export const auth = getAuth();
+const auth = getAuth();
+const db = getFirestore(app);
 
 export const signInWithGooglePopup = () =>
   signInWithPopup(auth, googleProvider);
@@ -54,21 +55,7 @@ export const signInWithGooglePopup = () =>
 export const signInWithGoogleRedirect = () =>
   signInWithRedirect(auth, googleProvider);
 
-export const db = getFirestore(app);
-
-// ATTENTION!! workaround to load database with some data!!!
-export const addCollectionAndDocuments = async (collectionKey, objectsToAdd) => {
-  const collectionRef = collection(db, collectionKey);
-  const batch = writeBatch(db);
-
-  objectsToAdd.forEach(object => {
-    const docRef = doc(collectionRef, object.title.toLowerCase());
-    batch.set(docRef, object);
-  });
-  await batch.commit();
-  console.log('done');
-}
-
+// CREATE USER -----------------------------------
 export const createUserDocumentFromAuth = async (userAuth) => {
   if (!userAuth) return;
 
@@ -93,7 +80,9 @@ export const createUserDocumentFromAuth = async (userAuth) => {
 
   return userDocRef;
 };
+// -----------------------------------------------
 
+// USER FUNCTIONS --------------------------------
 export const createAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
   return await createUserWithEmailAndPassword(auth, email, password);
@@ -107,18 +96,17 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
 export const signOutUser = async () => {
   await signOut(auth);
 };
+// -----------------------------------------------
 
-export const returnErrorMessageFromCode = (errorCode) => {
-  return ERROR_MESSAGES[errorCode];
-};
 
 export const onAuthStateChangedListener = (callback) =>
   onAuthStateChanged(auth, callback);
 
+// GET ALL CATEGORIES DOCUMENTS
 export const getCategoriesAndDocuments = async () => {
   const collectionRef = collection(db, 'categories');
   const dbQuery = query(collectionRef);
-
+  
   const querySnapshot = await getDocs(dbQuery);
   const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
     const { title, items } = docSnapshot.data();
@@ -127,4 +115,22 @@ export const getCategoriesAndDocuments = async () => {
   }, {});
 
   return categoryMap;
+}
+
+// RETURNS THE ERROR MESSAGE BASED ON RECEIVED ERROR CODE
+export const returnErrorMessageFromCode = (errorCode) => {
+  return ERROR_MESSAGES[errorCode];
+};
+
+// ATTENTION!! workaround to load database with some data!!!
+export const addCollectionAndDocuments = async (collectionKey, objectsToAdd) => {
+  const collectionRef = collection(db, collectionKey);
+  const batch = writeBatch(db);
+
+  objectsToAdd.forEach(object => {
+    const docRef = doc(collectionRef, object.title.toLowerCase());
+    batch.set(docRef, object);
+  });
+  await batch.commit();
+  console.log('done');
 }

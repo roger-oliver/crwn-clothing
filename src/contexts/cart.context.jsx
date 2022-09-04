@@ -1,4 +1,5 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useReducer } from 'react';
+import { createAction } from '../utils/reducer/reducer.utils';
 
 const addCartItem = (cartItems, productToAdd) => {
   const existingCartItem = cartItems.find(
@@ -27,14 +28,14 @@ const removeCartItem = (cartItems, cartItemToRemove) => {
 
   return cartItems.map((cartItem) => {
     return cartItem.id === cartItemToRemove.id
-      ? {...cartItem, quantity: cartItem.quantity - 1 }
+      ? { ...cartItem, quantity: cartItem.quantity - 1 }
       : cartItem;
   });
 };
 
 const clearCartItem = (cartItems, itemIdToClear) => {
-  return cartItems.filter(cartItem => cartItem.id !== itemIdToClear);
-}
+  return cartItems.filter((cartItem) => cartItem.id !== itemIdToClear);
+};
 
 export const CartContext = createContext({
   isCartOpen: false,
@@ -49,38 +50,92 @@ export const CartContext = createContext({
   total: 0,
 });
 
+// that is the shape of cart state!!!
+const INITIAL_STATE = {
+  cartItems: [],
+  cartCount: 0,
+  total: 0,
+  isCartOpen: false,
+};
+
+const CART_ACTION_TYPES = {
+  SET_CART_ITEMS: 'SET_CART_ITEMS',
+  SET_IS_CART_OPEN: 'SET_IS_CART_OPEN',
+};
+
+const cartReducer = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case CART_ACTION_TYPES.SET_CART_ITEMS:
+      return {
+        ...state,
+        ...payload,
+      };
+
+    case CART_ACTION_TYPES.SET_IS_CART_OPEN:
+      return {
+        ...state,
+        ...payload,
+      };
+
+    default:
+      break;
+  }
+};
+
 export const CartProvider = ({ children }) => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
+  const [state, dispatch] = useReducer(cartReducer, INITIAL_STATE);
 
-  const [total, setTotal] = useState(0);
+  const { cartItems, cartCount, total, isCartOpen } = state;
 
-  useEffect(() => {
-    const currentCartCount = cartItems.reduce((total, item) => {
+  // as we have many variables to be set, this function was created to 
+  // keep the logic apart from the reducer, return only the variables
+  // that need to be updated
+  const updateCartItemsHandler = (newCartItems) => {
+    /**
+     * the received object has this shape:
+     *    cartItems
+     *
+     * this method should return the following state components updated:
+     *    cartItems
+     *    cartTotal
+     *    cartCount
+     */
+
+    const currentCartCount = newCartItems.reduce((total, item) => {
       return total + item.quantity;
     }, 0);
-    setCartCount(currentCartCount);
-  }, [cartItems]);
 
-  useEffect(() => {
-    const currentTotal = cartItems.reduce((total, item) => {
-      return total + (item.quantity * item.price);
-    }, 0)
-    setTotal(currentTotal);
-  }, [cartItems])
+    const currentTotal = newCartItems.reduce((total, item) => {
+      return total + item.quantity * item.price;
+    }, 0);
 
+    dispatch(createAction(CART_ACTION_TYPES.SET_CART_ITEMS, {
+        cartItems: newCartItems,
+        cartCount: currentCartCount,
+        total: currentTotal,
+        isCartOpen: newCartItems.isCartOpen || false,
+      })
+    );
+  };
+
+  // these 4 methods we expose through the context provider
   const addItemToCart = (productToAdd) => {
-    setCartItems(addCartItem(cartItems, productToAdd));
+    updateCartItemsHandler(addCartItem(cartItems, productToAdd));
   };
 
   const removeItemFromCart = (itemToRemove) => {
-    setCartItems(removeCartItem(cartItems, itemToRemove));
+    updateCartItemsHandler(removeCartItem(cartItems, itemToRemove));
   };
 
   const clearItemFromCart = (itemIdToClear) => {
-    setCartItems(clearCartItem(cartItems, itemIdToClear));
-  }
+    updateCartItemsHandler(clearCartItem(cartItems, itemIdToClear));
+  };
+
+  const setIsCartOpen = (isCartOpen) => {
+    dispatch(createAction(CART_ACTION_TYPES.SET_IS_CART_OPEN, { isCartOpen }));
+  };
 
   const value = {
     isCartOpen,
