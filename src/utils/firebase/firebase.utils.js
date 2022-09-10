@@ -103,18 +103,16 @@ export const onAuthStateChangedListener = (callback) =>
   onAuthStateChanged(auth, callback);
 
 // GET ALL CATEGORIES DOCUMENTS
+// should return all the cateries as it is in the database!!
 export const getCategoriesAndDocuments = async () => {
   const collectionRef = collection(db, 'categories');
   const dbQuery = query(collectionRef);
   
   const querySnapshot = await getDocs(dbQuery);
-  const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
-    const { title, items } = docSnapshot.data();
-    acc[title.toLowerCase()] = items;
-    return acc;
-  }, {});
+  
+  const categories = querySnapshot.docs.map(docSnapshot => docSnapshot.data());
 
-  return categoryMap;
+  return categories;
 }
 
 // RETURNS THE ERROR MESSAGE BASED ON RECEIVED ERROR CODE
