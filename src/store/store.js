@@ -1,5 +1,6 @@
 import { applyMiddleware, compose, createStore } from "redux";
 import logger from "redux-logger";
+import thunk from "redux-thunk";
 import { rootReducer } from "./root-reducer";
 
 const {
@@ -7,7 +8,7 @@ const {
 } = process.env;
 
 const middlewares = [
-  logger
+  logger, thunk,
 ];
 
 const composedEnhancers = REACT_APP_ENVIRONMENT === 'development' ? compose(applyMiddleware(...middlewares)) : undefined;
