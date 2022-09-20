@@ -56,9 +56,10 @@ export const signInWithGoogleRedirect = () =>
   signInWithRedirect(auth, googleProvider);
 
 // CREATE USER -----------------------------------
-export const createUserDocumentFromAuth = async (userAuth) => {
+export const createUserDocumentFromAuth = async (userAuth, additionalDetails) => {
   if (!userAuth) return;
 
+  // pointer to a space where the data lives
   const userDocRef = doc(db, 'users', userAuth.uid);
 
   const userSnapshot = await getDoc(userDocRef);
@@ -72,13 +73,16 @@ export const createUserDocumentFromAuth = async (userAuth) => {
         displayName,
         email,
         createdAt,
+        ...additionalDetails
       });
     } catch (error) {
       console.log(error);
     }
   }
-
-  return userDocRef;
+  // changed from userDocRef because now we'd like to get 
+  // the data inside the snapshot and get it stored in the 
+  // reducer;
+  return userSnapshot;
 };
 // -----------------------------------------------
 
@@ -96,6 +100,19 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
 export const signOutUser = async () => {
   await signOut(auth);
 };
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (userAuth) => {
+        unsubscribe();
+        resolve(userAuth);
+      },
+      reject
+    )
+  })
+}
 // -----------------------------------------------
 
 

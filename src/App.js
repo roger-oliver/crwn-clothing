@@ -6,28 +6,13 @@ import Shop from "./routes/shop/shop.component";
 import Authentication from "./routes/authentication/authentication.component";
 import Checkout from "./routes/checkout/checkout.component";
 import { useEffect } from "react";
-import { createUserDocumentFromAuth, onAuthStateChangedListener } from "./utils/firebase/firebase.utils";
-import { setCurrentUser } from "./store/user/user.action";
 import { useDispatch } from "react-redux";
+import { checkUserSection } from "./store/user/user.action";
 
 const App = () => {
-  // as the app is the first component that is mounted, we moved the 
-  // method that subscribe to firestore auth state
-  // I understand it, but seems a bit messy. lets try to have only
-  // a function call if possible; 
   const dispatch = useDispatch();
   useEffect(() => {
-    async function runSubscribe() {
-      const subscribe = onAuthStateChangedListener(async (user) => {
-        if (user) {
-          await createUserDocumentFromAuth(user);
-        }
-        dispatch(setCurrentUser(user));
-      });
-      return subscribe;
-    }
-    // TODO: should return unsubscribed (when completed), but returning an error
-    runSubscribe();
+    dispatch(checkUserSection())
   });
 
   return (
